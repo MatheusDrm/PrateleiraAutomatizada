@@ -46,17 +46,18 @@ class teste():
 
         GPIO.setup(self.sensorX1_pin, GPIO.IN)
         GPIO.setup(self.sensorX2_pin, GPIO.IN)
-        GPIO.setup(self.sensorX3_pin, GPIO.IN)
-        GPIO.setup(self.sensorX4_pin, GPIO.IN)
-        GPIO.setup(self.sensorX5_pin, GPIO.IN)
-        GPIO.setup(self.sensorX6_pin, GPIO.IN)
+        GPIO.setup(self.sensorY1_pin, GPIO.IN)
+        GPIO.setup(self.sensorY2_pin, GPIO.IN)
+        GPIO.setup(self.sensorZ1_pin, GPIO.IN)
+        GPIO.setup(self.sensorZ2_pin, GPIO.IN)
 
         self.sensorX1_state = GPIO.input(self.sensorX1_pin)
-        self.sensorX2_state = GPIO.input(self.sensorX1_pin)
-        self.sensorY1_state = GPIO.input(self.sensorX1_pin)
-        self.sensorY2_state = GPIO.input(self.sensorX1_pin)
-        self.sensorZ1_state = GPIO.input(self.sensorX1_pin)
-        self.sensorZ2_state = GPIO.input(self.sensorX1_pin)
+        self.sensorX2_state = GPIO.input(self.sensorX2_pin)
+        self.sensorY1_state = GPIO.input(self.sensorY1_pin)
+        self.sensorY2_state = GPIO.input(self.sensorY2_pin)
+        self.sensorZ1_state = GPIO.input(self.sensorZ1_pin)
+        self.sensorZ2_state = GPIO.input(self.sensorZ2_pin)
+
 
     def return_sensorState(self):
         print(f'Estado do botão x1: ', self.sensorX1_state)
@@ -64,31 +65,31 @@ class teste():
     def motor_test(self, motor):
         if motor=='x':
             self.motorX.move(True)
-            time.sleep(3)
+            time.sleep(2)
             print('Brake no motor x')
             self.motorX.brake()
             time.sleep(1)
             self.motorX.move(False)
-            time.sleep(3)
+            time.sleep(2)
             print('Fast stop no motor x')
             self.motorX.fast_stop()
 
         elif motor=='y':
             self.motorY.move(True)
-            time.sleep(3)
+            time.sleep(2)
             self.motorY.fast_stop()
             time.sleep(1)
             self.motorY.move(False)
-            time.sleep(3)
+            time.sleep(2)
             self.motorY.fast_stop()
 
         elif motor=='z':
             self.motorZ.move(True)
-            time.sleep(3)
+            time.sleep(2)
             self.motorZ.fast_stop()
             time.sleep(1)
             self.motorZ.move(False)
-            time.sleep(3)
+            time.sleep(2)
             self.motorZ.fast_stop()
 
         else: 
@@ -97,34 +98,34 @@ class teste():
     def motor_test_SENSOR(self, motor):
         if motor=='x':
             self.motorX.move(True)
-            while (self.sensorX1_state != 1):
+            while (self.sensorX2_state != 1):
                 time.sleep(0.1)  # Tempo de espera entre as leituras do sensor 
             self.motorX.fast_stop()
             time.sleep(1)
             self.motorX.move(False)
-            while (self.sensorX2_state != 1):
+            while (self.sensorX1_state != 1):
               time.sleep(0.1)  # Tempo de espera entre as leituras do sensor             
             self.motorX.fast_stop()
 
         elif motor=='y':
             self.motorY.move(True)
-            while (self.sensorY1_state != 1):
+            while (self.sensorY2_state != 1):
                 time.sleep(0.1)  # Tempo de espera entre as leituras do sensor             
             self.motorY.fast_stop()
             time.sleep(1)
             self.motorY.move(False)
-            while (self.sensorY2_state != 1):
+            while (self.sensorY1_state != 1):
                 time.sleep(0.1)  # Tempo de espera entre as leituras do sensor             
             self.motorY.fast_stop()
 
         elif motor=='z':
             self.motorZ.move(True)
-            while (self.sensorz1_state != 1):
+            while (self.sensorZ2_state != 1):
                 time.sleep(0.1)  # Tempo de espera entre as leituras do sensor 
             self.motorZ.fast_stop()
             time.sleep(1)
             self.motorZ.move(False)
-            while (self.sensorZ2_state != 1):
+            while (self.sensorZ1_state != 1):
                 time.sleep(0.1)  # Tempo de espera entre as leituras do sensor             
             self.motorZ.fast_stop()
 
@@ -161,4 +162,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
