@@ -1,4 +1,7 @@
-var mysql = require("mysql")
+const objetos = {};
+var mysql = require("mysql");
+
+dados = null
 
 var con = mysql.createConnection({
     host: "localhost",
@@ -7,28 +10,33 @@ var con = mysql.createConnection({
     database : "DB"
   });
 
-const io = require("socket.io")(require("http").createServer(function(){}).listen(80));
+const io = require("socket.io")(
+    require("http").createServer(
+        function(){}
+    ).listen(80)
+);
 
-io.on("connection", io =>{
-    console.log("Conexão estabelecida")
-    con.connect();
-    dados = con.query("Select * FROM armazen", function(err, result){
-        if (err) throw err
-    })
-    io.emit("enviando",dados)
-    console.log("Conectado")
+io.on("connection", (client) =>{
+        con.query("Select * FROM armazen",async function (err, resultado, fields){dados  =  resultado})
+        if (dados){
+            console.log("Conectado")
+            console.log(dados)}  
+            io.emit("iniciando",dados)
+        client.on("retirar", (compartimento)=>{
+            console.log(compartimento)
+            con.query("Delete FROM armazen where Compartimento = ?", [compartimento], (err, result)=>{
+                if (err){
+                    console.log(err)
+                }
+                console.log(result)})
+        })
+        client.on("salvar", (dono, objeto, compartimento) =>{
+            con.query("Insert into armazen (nome, objeto, compartimento) Values ?", [[[dono, objeto, compartimento]]],(err, result)=>{
+                if(err){
+                    console.log(err)
+                }
+                console.log(result)
+            })
+            console.log(dono+objeto+compartimento)
+        })
 })
-
-io.on("salvar", (dono, objeto, compartimento) =>{
-    values = [[dono, objeto, compartimento]]
-    con.query("Insert INTO armazen (dono, objeto, compartimento) VALUES ?", [values], function(err, result){
-        if (err) throw err
-    })
-    console.log("Dados Salvos")
-    dados = con.query("Select * FROM armazen", function(err, result){
-        if (err) throw err
-    })
-    io.emit("enviando",dados)
-    console.log("Dados atualizados")
-})
-
