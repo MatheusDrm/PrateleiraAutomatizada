@@ -10,9 +10,9 @@ class control():
         GPIO.setmode(GPIO.BCM)
         self.sensor_configuration()
         # Configurando os motores
-        self.motorX = motor(1,2)
-        self.motorY = motor(3,4)
-        self.motorZ = motor(5,6)
+        self.motorX = motor(2,3)
+        self.motorY = motor(17,27)
+        self.motorZ = motor(10,9)
         # Calibrando eixo x
         self.tx = 0 
         self.tzA = 2 # Tempo em z para armazenar  PRECISA CALIBRAR O TEMPO
@@ -22,26 +22,26 @@ class control():
 
     def sensor_configuration(self):
 
-        self.sensorX1_pin = 17
-        self.sensorX2_pin = 27
-        self.sensorY1_pin = 5
-        self.sensorY2_pin = 5
-        self.sensorZ1_pin = 5
-        self.sensorZ2_pin = 5
+        self.sensorX1_pin = 5
+        self.sensorX2_pin = 6
+        self.sensorY1_pin = 13
+        self.sensorY2_pin = 19
+        self.sensorZ1_pin = 23
+        self.sensorZ2_pin = 24
  
         GPIO.setup(self.sensorX1_pin, GPIO.IN)
         GPIO.setup(self.sensorX2_pin, GPIO.IN)
-        GPIO.setup(self.sensorX3_pin, GPIO.IN)
-        GPIO.setup(self.sensorX4_pin, GPIO.IN)
-        GPIO.setup(self.sensorX5_pin, GPIO.IN)
-        GPIO.setup(self.sensorX6_pin, GPIO.IN)
+        GPIO.setup(self.sensorY1_pin, GPIO.IN)
+        GPIO.setup(self.sensorY2_pin, GPIO.IN)
+        GPIO.setup(self.sensorZ1_pin, GPIO.IN)
+        GPIO.setup(self.sensorZ2_pin, GPIO.IN)
 
         self.sensorX1_state = GPIO.input(self.sensorX1_pin)
-        self.sensorX2_state = GPIO.input(self.sensorX1_pin)
-        self.sensorY1_state = GPIO.input(self.sensorX1_pin)
-        self.sensorY2_state = GPIO.input(self.sensorX1_pin)
-        self.sensorZ1_state = GPIO.input(self.sensorX1_pin)
-        self.sensorZ2_state = GPIO.input(self.sensorX1_pin)
+        self.sensorX2_state = GPIO.input(self.sensorX2_pin)
+        self.sensorY1_state = GPIO.input(self.sensorY1_pin)
+        self.sensorY2_state = GPIO.input(self.sensorY2_pin)
+        self.sensorZ1_state = GPIO.input(self.sensorZ1_pin)
+        self.sensorZ2_state = GPIO.input(self.sensorZ2_pin)
 
 
     def calibration_x(self):
@@ -69,17 +69,17 @@ class control():
 
         # Pegar a gaveta de um apoio na frente da posição inicial da garra
         self.motorZ.move(True)
-        while (self.sensorZ1_state!=1):
-            time.sleep(0.1)
-        print("Tocou na gaveta")
+        # while (self.sensorZ1_state!=1):
+        #     time.sleep(0.1)
+        time.sleep(1)
         self.motorZ.fast_stop()
         self.motorY.move(True)
-        time.sleep(0.5)
+        time.sleep(0.5) # CALIBRAR ****
         self.motorY.fast_stop()
 
         #Ajeitar posição em Y para primeira fileira
         self.motorY.move(True)
-        time.sleep(0.5)
+        time.sleep(0.5) # CALIBRAR ****
         self.motorY.fast_stop()        
         
         # Garra estará com gaveta presa
@@ -122,32 +122,39 @@ class control():
     def soltarGaveta(self):
         # Procedimento de soltar a gaveta
         self.motorZ.move(True)
-        time.sleep(self.tzA)
-        self.motorZ.brake()
+        while (self.sensorZ2_state!=1):
+            time.sleep(0.1)
+        # time.sleep(self.tzA)
+        self.motorZ.fast_stop()
         self.motorY.move(False)
-        time.sleep(1)
+        time.sleep(0.5)#                            CALIBRAR
         self.motorY.fast_stop()
         self.motorZ.move(False)
-        time.sleep(self.tzA)
+        while (self.sensorZ1_state!=1):
+            time.sleep(0.1)
+        # time.sleep(self.tzA)
 
 
     def pegarGaveta(self):
         # Procedimento para pegar a gaveta -> Assume-se que já esteja em uma altura adequada para pegar a gaveta
         # Avança em Z até tocar na gaveta
         self.motorZ.move(True)
-        tempo_inicial = time.time()
-        while (self.sensorZ1_state!=1):
+        # tempo_inicial = time.time()
+        while (self.sensorZ2_state!=1):
             time.sleep(0.1)
-        tempo_final = time.time()
+        # tempo_final = time.time()
         print("Tocou na gaveta")
         self.motorZ.fast_stop()
         # Sobe em Y para prender no encaixe
         self.motorY.move(True)
-        time.sleep(0.5)
+        time.sleep(0.5) #                            CALIBRAR
         self.motorY.fast_stop()
         # Voltar em Z
         self.motorZ.move(False)
-        time.sleep(tempo_final-tempo_inicial)
+        while (self.sensorZ1_state!=1):
+            time.sleep(0.1)
+        print("Retração completa")
+        # time.sleep(tempo_final-tempo_inicial)
         self.motorZ.fast_stop()
 
 
@@ -185,7 +192,7 @@ class control():
 
 
     def c2(self, procedimento):
-        tx = 2*self.tx
+        tx = 3*self.tx
         # código para o caso 2
         if(procedimento=='armazenar'):
             # Alinhar em x
@@ -218,7 +225,7 @@ class control():
             print("Procedimento inválido")            
 
     def c3(self, procedimento):
-        tx = 3*self.tx
+        tx = 5*self.tx
         # código para o caso 3
         if(procedimento=='armazenar'):
             # Alinhar em x
@@ -263,6 +270,10 @@ class control():
               time.sleep(0.1)
             self.motorY.fast_stop()
 
+            self.motorY.move(False)
+            time.sleep(0.5) #                         CALIBRAR
+            self.motorY.fast_stop()
+
             self.soltarGaveta()
 
             #Voltar na posição inicial
@@ -278,12 +289,16 @@ class control():
         elif(procedimento=="retirar"):
             # Alinhar em x
             self.motorX.move(True)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()
             # Y 
             self.motorY.move(True)
             while (self.sensorY2_state!=1):
               time.sleep(0.1)
+            self.motorY.fast_stop()
+
+            self.motorY.move(False)
+            time.sleep(0.5) #                         CALIBRAR
             self.motorY.fast_stop()
 
             self.pegarGaveta()
@@ -294,24 +309,29 @@ class control():
               time.sleep(0.1)
             self.motorY.fast_stop()
             self.motorX.move(False)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()    
 
         else:
             print("Procedimento inválido")            
 
     def c5(self, procedimento):
+        tx = 3*self.tx
         # código para o caso 5
         if(procedimento=='armazenar'):
             # Alinhar em x
             self.motorX.move(True)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()
             # Y
             self.motorY.move(True)
             while (self.sensorY2_state!=1):
               time.sleep(0.1)
             self.motorY.fast_stop()
+
+            self.motorY.move(False)
+            time.sleep(0.5) #                         CALIBRAR
+            self.motorY.fast_stop()            
 
             self.soltarGaveta()
 
@@ -321,20 +341,24 @@ class control():
               time.sleep(0.1)
             self.motorY.fast_stop()
             self.motorX.move(False)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()    
             
 
         elif(procedimento=="retirar"):
             # Alinhar em x
             self.motorX.move(True)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()
             # Y 
             self.motorY.move(True)
             while (self.sensorY2_state!=1):
               time.sleep(0.1)
             self.motorY.fast_stop()
+
+            self.motorY.move(False)
+            time.sleep(0.5) #                         CALIBRAR
+            self.motorY.fast_stop()            
 
             self.pegarGaveta()
 
@@ -344,24 +368,29 @@ class control():
               time.sleep(0.1)
             self.motorY.fast_stop()
             self.motorX.move(False)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()    
 
         else:
             print("Procedimento inválido")    
 
     def c6(self, procedimento):
+        tx = 5*self.tx
         # código para o caso 6
         if(procedimento=='armazenar'):
             # Alinhar em x
             self.motorX.move(True)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()
             # Y
             self.motorY.move(True)
             while (self.sensorY2_state!=1):
               time.sleep(0.1)
             self.motorY.fast_stop()
+
+            self.motorY.move(False)
+            time.sleep(0.5) #                         CALIBRAR
+            self.motorY.fast_stop()            
 
             self.soltarGaveta()
 
@@ -371,20 +400,24 @@ class control():
               time.sleep(0.1)
             self.motorY.fast_stop()
             self.motorX.move(False)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()    
             
 
         elif(procedimento=="retirar"):
             # Alinhar em x
             self.motorX.move(True)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()
             # Y 
             self.motorY.move(True)
             while (self.sensorY2_state!=1):
               time.sleep(0.1)
             self.motorY.fast_stop()
+
+            self.motorY.move(False)
+            time.sleep(0.5) #                         CALIBRAR
+            self.motorY.fast_stop()            
 
             self.pegarGaveta()
 
@@ -394,11 +427,9 @@ class control():
               time.sleep(0.1)
             self.motorY.fast_stop()
             self.motorX.move(False)
-            time.sleep(self.tx)
+            time.sleep(tx)
             self.motorX.fast_stop()    
 
         else:
             print("Procedimento inválido")   
         
-
-
