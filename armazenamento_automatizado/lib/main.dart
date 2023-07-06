@@ -41,16 +41,16 @@ class MyAppState extends State{
     socket.emit("retirar", comp);
   }
 
-  salvar(String cliente, String objeto, String compartimento){
+  salvar(var cliente, var objeto, var compartimento){
     socket.emit('salvar', [cliente, objeto, compartimento]);
   }
 
 
  GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   String? _selectedProduct;
-  late var cliente;
-  late var objeto;
-  late var compartimento;
+  var cliente = new TextEditingController();
+  var objeto = new TextEditingController();
+  var compartimento = new TextEditingController();
   List<String> _products = [
     "1",
     "2",
@@ -163,9 +163,7 @@ class MyAppState extends State{
                                   }
                                   return null;
                                 },
-                                  onSaved: (value){
-                                    this.cliente = value;
-                                  },
+                                  controller: cliente,
                             ),
                               ),
                                 Padding(
@@ -188,9 +186,7 @@ class MyAppState extends State{
                                       }
                                       return null;
                                     },
-                                    onSaved: (value){
-                                      this.objeto = value;
-                                    },
+                                    controller: objeto,
                                   ),
                                 ),
                                 Padding(
@@ -223,13 +219,11 @@ class MyAppState extends State{
                                       if (value == null) {
                                         return "Por favor, selecione um produto";
                                       }
-                                      return null;
-                                    },
-                                    onSaved: (value){this.objeto = value;},
+                                      return null;}
                                   ),
                                 ),
                                 SizedBox(height: 10),
-                                ElevatedButton(onPressed: (){print(this.cliente);salvar(this.cliente, this.objeto, this.compartimento);}, child: Text('Enviar'), style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.orange[900]!)),),
+                                ElevatedButton(onPressed: (){print(this.cliente);salvar(cliente.text, objeto.text, 2);}, child: Text('Enviar'), style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.orange[900]!)),),
                               ],
                             ),
                           ),
