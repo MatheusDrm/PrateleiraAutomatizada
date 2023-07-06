@@ -1,48 +1,36 @@
-import socketio
-from control_class import control
+var mysql = require("mysql")
+
+var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "jjbalvpo",
+    database : "DB"
+  });
+
+const io = require("socket.io")(require("http").createServer(function(){}).listen(80)); 
+
+io.on("connection", io =>{
+    console.log("Conexão estabelecida")
+    con.connect();
+    dados = con.query("Select * FROM armazen", function(err, result){
+        if (err) throw err
+    })
+    io.emit("enviando",dados)
+    console.log("Conectado")
+})
+
+io.on("salvar", (dono, objeto, compartimento) =>{
+    values = [[dono, objeto, compartimento]]
+    con.query("Insert INTO armazen (dono, objeto, compartimento) VALUES ?", [values], function(err, result){
+        if (err) throw err
+    })
+    console.log("Dados Salvos")
+    dados = con.query("Select * FROM armazen", function(err, result){
+        if (err) throw err
+    })
+    io.emit("enviando",dados)
+    console.log("Dados atualizados")
 
 
-# Crie uma instância do Socket.IO client
-sio = socketio.Client()
-
-# Variáveis para armazenar os valores
-procedimento = None
-compartimento = None
-
-control = control()
-
-@sio.event
-def connect():
-    print('Conectado ao servidor')
-
-@sio.event
-def mensagem(data):
-    global procedimento, compartimento
-    print('Mensagem recebida:', data)
-
-    # Atribua os valores aos procedimento e compartimento
-    procedimento = data['procedimento']
-    compartimento = data['compartimento']
-
-    # Realize o processamento necessário com os dados recebidos
-    print('Procedimento:', procedimento)
-    print('Compartimento:', compartimento)
-
-    # Executar procedimento
-    if (procedimento=='armazenar'):
-        control.armazenar(compartimento)
-    elif (procedimento=='retirar'):
-        control.retirar(compartimento)
-    else:
-        print("Procedimento recebido é inválido: ", procedimento)
-
-
-@sio.event
-def disconnect():
-    print('Desconectado do servidor')
-
-# Conecte-se ao servidor Socket.IO
-sio.connect('http://localhost:3000')
-
-# Mantenha o cliente em execução
-sio.wait()
+    io.emit("procedimentoArmazenar", { compartimento: compartimento });
+})
