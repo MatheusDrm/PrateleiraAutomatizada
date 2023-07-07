@@ -29,6 +29,7 @@ io.on("connection", (client) =>{
                     console.log(err)
                 }
                 console.log(result)})
+            io.emit("procedimentoRetirar", { compartimento: compartimento });
         })
         client.on("salvar", (dono, objeto, compartimento) =>{
             con.query("Insert into armazen (nome, objeto, compartimento) Values ?", [[[dono, objeto, compartimento]]],(err, result)=>{
@@ -37,6 +38,8 @@ io.on("connection", (client) =>{
                 }
                 console.log(result)
             })
+            io.emit("procedimentoArmazenar", { compartimento: compartimento });
             console.log(dono+objeto+compartimento)
         })
+})
 })
